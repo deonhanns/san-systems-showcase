@@ -199,6 +199,13 @@
   @media(max-width:600px){
     .rollout3{grid-template-columns:1fr;}
   }
+
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+  .detail-card{background:var(--bg);border-radius:8px;padding:14px;font-size:12.5px;line-height:1.7;}
+  .detail-card .rt{font-weight:600;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);}
+  .detail-card .diff{color:#C1462F;font-weight:600;}
+  .action-stack{display:flex;flex-direction:column;gap:8px;}
+  .shuttle-info{background:var(--bg);border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px;}
 </style>
 </head>
 <body>
@@ -296,7 +303,7 @@
 
   <div class="meat-section">
     <div class="about-note">
-      <strong>Who's behind this:</strong> San Systems is a small, AI-augmented team based in Cape Town. That's deliberate, it means direct access to the people actually building your system, not an account manager relaying messages, and pricing without agency overhead stacked on top. <a href="mailto:hello@thesanscribe.com?subject=Interested%20in%20EventOS" style="color:#fff;">Talk to us directly</a> whenever you're ready.
+      <strong>Who's behind this:</strong> San Systems is a small, Cape Town-based team. That's deliberate, it means direct access to the people actually building your system, not an account manager relaying messages, and pricing without agency overhead stacked on top. <a href="mailto:hello@thesanscribe.com?subject=Interested%20in%20EventOS" style="color:#fff;">Talk to us directly</a> whenever you're ready.
     </div>
   </div>
 </div>
@@ -357,6 +364,7 @@
 
   var state = loadState();
   var currentUser = null;
+  var openPanel = null; // transient UI state, resets on role switch, not persisted
 
   function loadState() {
     try {
@@ -412,6 +420,7 @@
   }
 
   function switchRole() {
+    openPanel = null;
     document.getElementById('app').style.display = 'none';
     document.getElementById('login').style.display = 'block';
     document.getElementById('login-name').value = currentUser ? currentUser.name : '';
@@ -450,6 +459,11 @@
         '</div>';
     }
 
+    if (openPanel) {
+      if (openPanel.type === 'duplicate') return renderDuplicatePanel(openPanel);
+      if (openPanel.type === 'shuttle') return renderShuttlePanel(openPanel);
+    }
+
     var checkedIn = state.guests.filter(function (g) { return g.checkedIn; }).length;
     var openExceptions = state.exceptions.filter(function (e) { return !e.resolved; });
 
@@ -470,16 +484,99 @@
       html += '<div class="empty">Nothing needs attention right now.</div>';
     } else {
       openExceptions.forEach(function (e) {
-        html += '<div class="exception"><span>' + e.label + '</span><span class="tag" onclick="resolveException(\'' + e.id + '\')">review</span></div>';
+        html += '<div class="exception"><span>' + e.label + '</span><span class="tag" onclick="openException(\'' + e.id + '\')">review</span></div>';
       });
     }
-    var resolved = state.exceptions.filter(function (e) { return e.resolved; });
-    resolved.forEach(function (e) {
+    var resolvedList = state.exceptions.filter(function (e) { return e.resolved; });
+    resolvedList.forEach(function (e) {
       html += '<div class="exception"><span style="text-decoration:line-through;opacity:0.5;">' + e.label + '</span><span class="tag ok">resolved</span></div>';
+    });
+
+    html += '<div class="section-title" style="margin-top:24px;">Guests</div>';
+    state.guests.forEach(function (g) {
+      html += '<div class="guest-row"><span>' + g.name + '</span><span class="tag ' + (g.checkedIn ? 'ok' : '') + '">' + (g.checkedIn ? 'checked in' : 'not yet') + '</span></div>';
     });
 
     html += '</div>';
     return html;
+  }
+
+  function openException(id) {
+    var ex = state.exceptions.find(function (e) { return e.id === id; });
+    if (!ex) return;
+    if (ex.type === 'message') { resolveException(id); return; }
+    openPanel = ex;
+    render();
+  }
+
+  function closePanel() {
+    openPanel = null;
+    render();
+  }
+
+  function renderDuplicatePanel(ex) {
+    var a = state.guests.find(function (g) { return g.id === ex.a; });
+    var b = state.guests.find(function (g) { return g.id === ex.b; });
+    var html = '<div class="panel">';
+    html += '<button class="back-link" onclick="closePanel()">&#8592; Back to dashboard</button>';
+    html += '<h2>Duplicate record</h2><div class="sub">Same name, different details. Choose how to resolve it.</div>';
+    html += '<div class="detail-grid">';
+    [['A', a], ['B', b]].forEach(function (pair) {
+      var label = pair[0], g = pair[1];
+      html += '<div class="detail-card">';
+      html += '<div class="rt">Record ' + label + '</div>';
+      html += '<div><strong>Flight:</strong> ' + g.flight + '</div>';
+      html += '<div><strong>Dietary:</strong> ' + g.dietary + '</div>';
+      html += '<div><strong>Passport:</strong> ' + (g.passport ? 'Attached' : '<span class="diff">Not attached</span>') + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="action-stack">';
+    html += '<button class="btn" onclick="resolveDuplicate(\'' + ex.id + '\',\'a\')">Keep Record A</button>';
+    html += '<button class="btn secondary" onclick="resolveDuplicate(\'' + ex.id + '\',\'b\')">Keep Record B</button>';
+    html += '<button class="btn secondary" onclick="resolveDuplicate(\'' + ex.id + '\',\'merge\')">Merge: flight from A, dietary &amp; passport from B</button>';
+    html += '</div></div>';
+    return html;
+  }
+
+  function resolveDuplicate(exId, choice) {
+    var ex = state.exceptions.find(function (e) { return e.id === exId; });
+    var a = state.guests.find(function (g) { return g.id === ex.a; });
+    var b = state.guests.find(function (g) { return g.id === ex.b; });
+    if (choice === 'a') {
+      state.guests = state.guests.filter(function (g) { return g.id !== ex.b; });
+    } else if (choice === 'b') {
+      state.guests = state.guests.filter(function (g) { return g.id !== ex.a; });
+    } else {
+      a.dietary = b.dietary;
+      a.passport = b.passport;
+      state.guests = state.guests.filter(function (g) { return g.id !== ex.b; });
+    }
+    ex.resolved = true;
+    openPanel = null;
+    saveState();
+    render();
+  }
+
+  function renderShuttlePanel(ex) {
+    var g = state.guests.find(function (guest) { return guest.id === ex.guest; });
+    var html = '<div class="panel">';
+    html += '<button class="back-link" onclick="closePanel()">&#8592; Back to dashboard</button>';
+    html += '<h2>Assign a shuttle seat</h2><div class="sub">' + g.name + ' needs transport and has no seat yet.</div>';
+    html += '<div class="shuttle-info">14:30 shuttle &middot; Lobby A pickup &middot; 2 seats open</div>';
+    html += '<button class="btn" onclick="resolveShuttle(\'' + ex.id + '\')">Assign ' + g.name.split(' ')[0] + ' to this shuttle</button>';
+    html += '</div>';
+    return html;
+  }
+
+  function resolveShuttle(exId) {
+    var ex = state.exceptions.find(function (e) { return e.id === exId; });
+    var g = state.guests.find(function (guest) { return guest.id === ex.guest; });
+    g.shuttleAssigned = true;
+    ex.resolved = true;
+    openPanel = null;
+    saveState();
+    render();
   }
 
   function submitNewEvent() {
@@ -493,13 +590,19 @@
       name: name, start: start, end: end, venue: venue, headcount: headcount,
       intakeLink: 'eventos.app/e/' + slug + '/intake'
     };
-    saveState();
-    render();
-  }
-
-  function resolveException(id) {
-    var ex = state.exceptions.find(function (e) { return e.id === id; });
-    if (ex) ex.resolved = true;
+    // Seed a realistic, already-populated event, not an empty shell,
+    // so there's something real for a coordinator to actually resolve.
+    state.guests = [
+      { id: 'g1', name: 'Naledi Khumalo', flight: 'Arrives 14 Nov, 09:40', dietary: 'Vegetarian', passport: true, checkedIn: true, transportNeeded: true, shuttleAssigned: true, messages: [] },
+      { id: 'g2', name: 'J. Ndlovu', flight: 'Arrives 14 Nov, 11:15', dietary: 'No restrictions', passport: true, checkedIn: false, transportNeeded: true, shuttleAssigned: false, messages: [] },
+      { id: 'g3', name: 'J. Ndlovu', flight: 'Arrives 14 Nov, 14:50', dietary: 'Halal', passport: false, checkedIn: false, transportNeeded: true, shuttleAssigned: false, messages: [] },
+      { id: 'g4', name: 'Priya Naidoo', flight: 'Arrives 13 Nov, 18:20', dietary: 'No restrictions', passport: true, checkedIn: true, transportNeeded: false, shuttleAssigned: false, messages: [] },
+      { id: 'g5', name: 'Sipho Dlamini', flight: 'Arrives 14 Nov, 10:05', dietary: 'No restrictions', passport: true, checkedIn: false, transportNeeded: true, shuttleAssigned: false, messages: [] }
+    ];
+    state.exceptions = [
+      { id: 'ex-dup', type: 'duplicate', label: 'J. Ndlovu \u00b7 duplicate record', resolved: false, a: 'g2', b: 'g3' },
+      { id: 'ex-shuttle', type: 'shuttle', label: 'Sipho Dlamini \u00b7 needs a shuttle seat', resolved: false, guest: 'g5' }
+    ];
     saveState();
     render();
   }
@@ -603,6 +706,7 @@
     // Auto-flag exception for coordinator
     state.exceptions.push({
       id: 'ex-' + Date.now(),
+      type: 'message',
       label: currentUser.name + ' \u00b7 sent a message: "' + text + '"',
       resolved: false
     });
