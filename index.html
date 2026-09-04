@@ -23,7 +23,7 @@
   .banner strong{color:var(--teal);}
 
   /* Login screen */
-  #login{max-width:420px;margin:60px auto;padding:0 20px;}
+  #login{max-width:420px;margin:60px auto;padding:0 20px;display:none;}
   #login .card{background:#fff;border-radius:12px;padding:32px;box-shadow:0 10px 30px rgba(27,42,65,0.08);}
   .wordmark{font-size:24px;font-weight:700;color:var(--navy);margin-bottom:4px;}
   .wordmark span{color:var(--teal);}
@@ -120,11 +120,86 @@
 
   .foot{max-width:640px;margin:0 auto;padding:0 20px 50px;text-align:center;}
   .foot button{background:none;border:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-decoration:underline;cursor:pointer;}
+
+  /* Landing / intro screen */
+  #intro{max-width:760px;margin:0 auto;padding:0 20px;}
+  .hero{text-align:center;padding:56px 0 40px;}
+  .hero .kicker{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;}
+  .hero h1{font-size:clamp(26px,4vw,36px);font-weight:700;line-height:1.2;color:var(--navy);max-width:16ch;margin:0 auto 14px;}
+  .hero p{font-size:15px;color:var(--muted);max-width:48ch;margin:0 auto 28px;line-height:1.6;}
+  .hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .hero-ctas .btn{width:auto;padding:13px 24px;}
+  .hero-ctas .btn.secondary{background:#fff;}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 0 44px;}
+  .compare-col{background:#fff;border-radius:12px;padding:22px;box-shadow:0 4px 16px rgba(27,42,65,0.05);}
+  .compare-col.bad{border-top:3px solid #C1462F;}
+  .compare-col.good{border-top:3px solid var(--teal);}
+  .compare-col h3{font-size:13px;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:14px;}
+  .compare-col.bad h3{color:#C1462F;}
+  .compare-col.good h3{color:var(--teal-dark);}
+  .compare-row{font-size:13px;padding:9px 0;border-top:1px solid var(--line);color:var(--ink);}
+  .compare-row:first-of-type{border-top:none;}
+  .compare-col.bad .compare-row{color:#8a4638;}
+  .compare-col.good .compare-row{color:#1f5a6b;}
+
+  .why{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-bottom:44px;}
+  .why-item{background:#fff;border-radius:10px;padding:18px;text-align:center;}
+  .why-item .n{font-size:20px;margin-bottom:8px;}
+  .why-item .t{font-size:13px;font-weight:600;margin-bottom:4px;}
+  .why-item .d{font-size:12px;color:var(--muted);line-height:1.5;}
+
+  .talk-link{
+    color:rgba(255,255,255,0.85);font-size:12.5px;text-decoration:none;border:1px solid rgba(255,255,255,0.25);
+    border-radius:6px;padding:7px 14px;margin-right:8px;
+  }
+  .talk-link:hover{background:rgba(255,255,255,0.1);}
+
+  @media(max-width:600px){
+    .compare{grid-template-columns:1fr;}
+    .why{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
 
 <div class="banner">EventOS &middot; San Systems capability showcase &middot; <strong>Horizon Events, sample data</strong> &middot; WhatsApp/SMS simulated, no real messages sent</div>
+
+
+<div id="intro">
+  <div class="hero">
+    <div class="kicker">San Systems capability showcase</div>
+    <h1>What if your next event ran itself?</h1>
+    <p>Most event teams run on a spreadsheet doing the work of six systems at once. EventOS is what we build instead, one data core, a different view for every role, nothing manually re-typed twice.</p>
+    <div class="hero-ctas">
+      <button class="btn" style="width:auto;" onclick="showLogin()">See it in action</button>
+      <a class="btn secondary" style="width:auto;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;" href="mailto:hello@thesanscribe.com?subject=Interested%20in%20EventOS">Talk to San Systems</a>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-col bad">
+      <h3>Today, one spreadsheet</h3>
+      <div class="compare-row">Duplicate delegate entries, nobody notices until check-in</div>
+      <div class="compare-row">Shuttle seats tracked by memory, not a system</div>
+      <div class="compare-row">Every guest question means someone reading a WhatsApp thread by hand</div>
+      <div class="compare-row">No idea who's actually confirmed until the day itself</div>
+    </div>
+    <div class="compare-col good">
+      <h3>With EventOS</h3>
+      <div class="compare-row">Duplicate records flagged automatically, resolved in one screen</div>
+      <div class="compare-row">Shuttle capacity enforced by the system, not a guess</div>
+      <div class="compare-row">Guest replies auto-flagged for review, nothing gets missed</div>
+      <div class="compare-row">One dashboard, only shows what actually needs attention</div>
+    </div>
+  </div>
+
+  <div class="why">
+    <div class="why-item"><div class="n">&#128274;</div><div class="t">Role-scoped by design</div><div class="d">Coordinators, crew, and guests each see only their own view, nothing to accidentally expose</div></div>
+    <div class="why-item"><div class="n">&#128241;</div><div class="t">No new hardware</div><div class="d">Runs on the laptop, tablet, and phone your team already has</div></div>
+    <div class="why-item"><div class="n">&#128172;</div><div class="t">Built for how guests actually reply</div><div class="d">SMS and WhatsApp are first-class, not an afterthought</div></div>
+  </div>
+</div>
 
 <!-- LOGIN / ROLE PICKER -->
 <div id="login">
@@ -162,7 +237,7 @@
       <div class="brand">Event<span>OS</span></div>
       <div class="who">Logged in as <b id="who-name"></b> &middot; <span id="who-role"></span></div>
     </div>
-    <button onclick="switchRole()">Switch role</button>
+    <a class="talk-link" href="mailto:hello@thesanscribe.com?subject=Interested%20in%20EventOS">Talk to San Systems</a><button onclick="switchRole()">Switch role</button>
   </header>
 
   <main id="main"></main>
@@ -223,6 +298,11 @@
     document.getElementById('who-name').textContent = currentUser.name;
     document.getElementById('who-role').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
     render();
+  }
+
+  function showLogin() {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('login').style.display = 'block';
   }
 
   function switchRole() {
