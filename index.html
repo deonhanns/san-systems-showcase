@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventOS — San Systems Showcase</title>
+<meta name="description" content="A capability demo from San Systems: one data core, role-scoped views, built for event operations. Sample data, simulated integrations.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2A41; --navy-2:#243855; --teal:#219EBC; --teal-dark:#1a7d96;
+    --bg:#F5F7FA; --white:#FFFFFF; --ink:#1B2A41; --muted:#6B7A90; --line:#E1E6EC;
+    --amber-bg:#FBEFDE; --amber-ink:#8A5A0F; --ok-bg:#E4F3EF; --ok-ink:#1F7A5C;
+    --wa-header:#075E54; --wa-bg:#ECE5DD; --wa-out:#DCF8C6; --wa-check:#34B7F1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;min-height:100vh;line-height:1.6;}
+
+  .banner{
+    background:var(--navy);color:#fff;text-align:center;padding:10px 16px;
+    font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:0.05em;
+  }
+  .banner strong{color:var(--teal);}
+
+  /* Login screen */
+  #login{max-width:420px;margin:60px auto;padding:0 20px;}
+  #login .card{background:#fff;border-radius:12px;padding:32px;box-shadow:0 10px 30px rgba(27,42,65,0.08);}
+  .wordmark{font-size:24px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .wordmark span{color:var(--teal);}
+  .tagline{font-size:13px;color:var(--muted);margin-bottom:28px;}
+  label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;}
+  input[type=text]{
+    width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 12px;font-size:14px;
+    font-family:inherit;margin-bottom:20px;
+  }
+  .role-options{display:grid;gap:10px;margin-bottom:24px;}
+  .role-card{
+    border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;transition:all .15s;
+  }
+  .role-card:hover{border-color:var(--teal);}
+  .role-card.selected{border-color:var(--teal);background:#EEF8FA;}
+  .role-card .name{font-weight:600;font-size:14px;}
+  .role-card .desc{font-size:12px;color:var(--muted);margin-top:2px;}
+  .role-card .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;}
+  .role-card.selected .dot{border-color:var(--teal);background:var(--teal);}
+  .btn{
+    display:block;width:100%;text-align:center;background:var(--teal);color:#fff;border:none;
+    border-radius:8px;padding:13px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
+  }
+  .btn:hover{background:var(--teal-dark);}
+  .btn:disabled{background:var(--line);color:var(--muted);cursor:not-allowed;}
+  .btn.secondary{background:transparent;border:1.5px solid var(--navy);color:var(--navy);}
+
+  /* App shell */
+  #app{display:none;}
+  header.appbar{
+    background:var(--navy);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;
+  }
+  header.appbar .left{display:flex;align-items:center;gap:14px;}
+  header.appbar .brand{font-weight:700;font-size:16px;}
+  header.appbar .brand span{color:var(--teal);}
+  header.appbar .who{font-family:'DM Mono',monospace;font-size:11.5px;color:rgba(255,255,255,0.65);}
+  header.appbar .who b{color:#fff;}
+  header.appbar button{
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;
+    border-radius:6px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  }
+
+  main{max-width:640px;margin:0 auto;padding:28px 20px 60px;}
+  .panel{background:#fff;border-radius:12px;padding:26px;box-shadow:0 4px 16px rgba(27,42,65,0.05);margin-bottom:18px;}
+  h2{font-size:18px;font-weight:700;margin-bottom:4px;}
+  .sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+
+  .row2{display:flex;gap:10px;}
+  .row2 > div{flex:1;}
+
+  .stat-row{display:flex;gap:10px;margin-bottom:20px;}
+  .stat{flex:1;background:var(--bg);border-radius:10px;padding:14px;}
+  .stat .n{font-size:22px;font-weight:700;color:var(--navy);}
+  .stat .l{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  .float-box{
+    display:flex;justify-content:space-between;align-items:center;background:var(--navy);color:#fff;
+    border-radius:10px;padding:16px 18px;margin-bottom:20px;
+  }
+  .float-box .amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:600;}
+  .float-box .l{font-size:11px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.05em;}
+  .float-box .sim{font-size:10px;color:var(--teal);}
+
+  .section-title{font-size:11.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);font-weight:600;margin-bottom:10px;}
+  .exception{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px;}
+  .exception:first-of-type{border-top:none;}
+  .tag{font-size:10.5px;padding:3px 10px;border-radius:12px;background:var(--amber-bg);color:var(--amber-ink);font-family:'DM Mono',monospace;}
+  .tag.ok{background:var(--ok-bg);color:var(--ok-ink);}
+  .empty{font-size:13px;color:var(--muted);padding:12px 0;text-align:center;}
+
+  .guest-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--line);font-size:13.5px;}
+  .guest-row:first-of-type{border-top:none;}
+
+  .upload{border:1px dashed var(--line);border-radius:8px;padding:14px;text-align:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-bottom:20px;}
+  .upload.filled{border-style:solid;border-color:var(--teal);color:var(--teal-dark);font-weight:500;}
+
+  select{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 12px;font-size:14px;font-family:inherit;margin-bottom:20px;background:#fff;}
+
+  /* WhatsApp sim */
+  .wa-frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .wa-bar{background:var(--wa-header);color:#fff;padding:12px 16px;font-size:13px;display:flex;justify-content:space-between;align-items:center;}
+  .wa-thread{background:var(--wa-bg);padding:14px 12px;min-height:180px;display:flex;flex-direction:column;gap:8px;}
+  .wa-msg{max-width:80%;padding:8px 10px 6px;border-radius:8px;font-size:13px;line-height:1.4;}
+  .wa-in{background:#fff;align-self:flex-start;border-top-left-radius:2px;}
+  .wa-out{background:var(--wa-out);align-self:flex-end;border-top-right-radius:2px;}
+  .wa-meta{font-size:10px;color:#8a8a8a;text-align:right;margin-top:2px;}
+  .wa-meta .check{color:var(--wa-check);}
+  .wa-compose{display:flex;gap:8px;padding:10px 12px;background:var(--wa-bg);border-top:1px solid rgba(0,0,0,0.06);}
+  .wa-compose input{flex:1;border-radius:20px;border:none;padding:9px 14px;font-size:13px;font-family:inherit;}
+  .wa-compose button{background:var(--wa-header);color:#fff;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;flex-shrink:0;}
+
+  .scan-box{background:var(--navy);border-radius:10px;aspect-ratio:4/2;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:rgba(255,255,255,0.5);font-size:13px;}
+
+  .foot{max-width:640px;margin:0 auto;padding:0 20px 50px;text-align:center;}
+  .foot button{background:none;border:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-decoration:underline;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="banner">EventOS &middot; San Systems capability showcase &middot; <strong>Horizon Events, sample data</strong> &middot; WhatsApp/SMS simulated, no real messages sent</div>
+
+<!-- LOGIN / ROLE PICKER -->
+<div id="login">
+  <div class="card">
+    <div class="wordmark">Event<span>OS</span></div>
+    <div class="tagline">Sample data for Horizon Events. Pick a name and a role to explore.</div>
+
+    <label>Your name</label>
+    <input type="text" id="login-name" placeholder="e.g. Grant">
+
+    <label>Role</label>
+    <div class="role-options" id="role-options">
+      <div class="role-card" data-role="coordinator" onclick="pickRole('coordinator')">
+        <div><div class="name">Coordinator</div><div class="desc">Create the event, run the dashboard</div></div>
+        <div class="dot"></div>
+      </div>
+      <div class="role-card" data-role="crew" onclick="pickRole('crew')">
+        <div><div class="name">Crew</div><div class="desc">Accreditation, event-day check-in</div></div>
+        <div class="dot"></div>
+      </div>
+      <div class="role-card" data-role="guest" onclick="pickRole('guest')">
+        <div><div class="name">Guest</div><div class="desc">Intake and messages, as a delegate would see it</div></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <button class="btn" id="enter-btn" disabled onclick="enterApp()">Enter EventOS</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="appbar">
+    <div class="left">
+      <div class="brand">Event<span>OS</span></div>
+      <div class="who">Logged in as <b id="who-name"></b> &middot; <span id="who-role"></span></div>
+    </div>
+    <button onclick="switchRole()">Switch role</button>
+  </header>
+
+  <main id="main"></main>
+
+  <div class="foot"><button onclick="resetDemo()">Reset demo</button></div>
+</div>
+
+<script>
+  var DEFAULT_STATE = {
+    event: null,
+    guests: [],
+    exceptions: [],
+    float: { balance: 500.00, log: [] },
+    crew: []
+  };
+
+  var state = loadState();
+  var currentUser = null;
+
+  function loadState() {
+    try {
+      var raw = sessionStorage.getItem('eventos-state');
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+  function saveState() {
+    sessionStorage.setItem('eventos-state', JSON.stringify(state));
+  }
+
+  // ---- Login ----
+  var selectedRole = null;
+  function pickRole(role) {
+    selectedRole = role;
+    document.querySelectorAll('.role-card').forEach(function (c) {
+      c.classList.toggle('selected', c.dataset.role === role);
+    });
+    checkLoginReady();
+  }
+  document.getElementById('login-name').addEventListener('input', checkLoginReady);
+  function checkLoginReady() {
+    var name = document.getElementById('login-name').value.trim();
+    document.getElementById('enter-btn').disabled = !(name && selectedRole);
+  }
+
+  function enterApp() {
+    var name = document.getElementById('login-name').value.trim();
+    currentUser = { name: name, role: selectedRole };
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('who-name').textContent = currentUser.name;
+    document.getElementById('who-role').textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+    render();
+  }
+
+  function switchRole() {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login').style.display = 'block';
+    document.getElementById('login-name').value = currentUser ? currentUser.name : '';
+    selectedRole = null;
+    document.querySelectorAll('.role-card').forEach(function (c) { c.classList.remove('selected'); });
+    checkLoginReady();
+  }
+
+  function resetDemo() {
+    sessionStorage.removeItem('eventos-state');
+    location.reload();
+  }
+
+  // ---- Render dispatch ----
+  function render() {
+    var main = document.getElementById('main');
+    if (currentUser.role === 'coordinator') main.innerHTML = renderCoordinator();
+    else if (currentUser.role === 'crew') main.innerHTML = renderCrew();
+    else main.innerHTML = renderGuest();
+  }
+
+  // ---- Coordinator ----
+  function renderCoordinator() {
+    if (!state.event) {
+      return '<div class="panel">' +
+        '<h2>Set up your event</h2>' +
+        '<div class="sub">You do this yourself, no one else needed.</div>' +
+        '<label>Event name</label><input type="text" id="ev-name" placeholder="e.g. Horizon Summit Cape Town">' +
+        '<div class="row2">' +
+          '<div><label>Start date</label><input type="text" id="ev-start" placeholder="14 Nov 2026"></div>' +
+          '<div><label>End date</label><input type="text" id="ev-end" placeholder="16 Nov 2026"></div>' +
+        '</div>' +
+        '<label>Venue</label><input type="text" id="ev-venue" placeholder="e.g. Cape Town ICC">' +
+        '<label>Expected headcount</label><input type="text" id="ev-headcount" placeholder="e.g. 150">' +
+        '<button class="btn" onclick="createEvent()">Create event</button>' +
+        '</div>';
+    }
+
+    var checkedIn = state.guests.filter(function (g) { return g.checkedIn; }).length;
+    var openExceptions = state.exceptions.filter(function (e) { return !e.resolved; });
+
+    var html = '<div class="panel">';
+    html += '<h2>' + state.event.name + '</h2>';
+    html += '<div class="sub">' + state.event.venue + ' &middot; ' + state.event.start + ' to ' + state.event.end + '</div>';
+    html += '<div style="background:var(--bg);border-radius:8px;padding:10px 14px;font-family:\'DM Mono\',monospace;font-size:11.5px;color:var(--muted);margin-bottom:20px;word-break:break-all;">Intake link: ' + state.event.intakeLink + '</div>';
+
+    html += '<div class="stat-row">' +
+      '<div class="stat"><div class="n">' + checkedIn + '/' + state.guests.length + '</div><div class="l">Checked in</div></div>' +
+      '<div class="stat"><div class="n">' + state.guests.length + '</div><div class="l">Registered guests</div></div>' +
+      '</div>';
+
+    html += '<div class="float-box"><div><div class="l">Usage float</div><div class="amt">R' + state.float.balance.toFixed(2) + '</div></div><div class="sim">simulated</div></div>';
+
+    html += '<div class="section-title">Needs attention</div>';
+    if (openExceptions.length === 0) {
+      html += '<div class="empty">Nothing needs attention right now.</div>';
+    } else {
+      openExceptions.forEach(function (e) {
+        html += '<div class="exception"><span>' + e.label + '</span><span class="tag" onclick="resolveException(\'' + e.id + '\')">review</span></div>';
+      });
+    }
+    var resolved = state.exceptions.filter(function (e) { return e.resolved; });
+    resolved.forEach(function (e) {
+      html += '<div class="exception"><span style="text-decoration:line-through;opacity:0.5;">' + e.label + '</span><span class="tag ok">resolved</span></div>';
+    });
+
+    html += '</div>';
+    return html;
+  }
+
+  function createEvent() {
+    var name = document.getElementById('ev-name').value.trim() || 'Horizon Summit Cape Town';
+    var start = document.getElementById('ev-start').value.trim() || '14 Nov 2026';
+    var end = document.getElementById('ev-end').value.trim() || '16 Nov 2026';
+    var venue = document.getElementById('ev-venue').value.trim() || 'Cape Town ICC';
+    var headcount = document.getElementById('ev-headcount').value.trim() || '150';
+    var slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    state.event = {
+      name: name, start: start, end: end, venue: venue, headcount: headcount,
+      intakeLink: 'eventos.app/e/' + slug + '/intake'
+    };
+    saveState();
+    render();
+  }
+
+  function resolveException(id) {
+    var ex = state.exceptions.find(function (e) { return e.id === id; });
+    if (ex) ex.resolved = true;
+    saveState();
+    render();
+  }
+
+  // ---- Crew ----
+  function renderCrew() {
+    if (!state.event) {
+      return '<div class="panel"><h2>No event yet</h2><div class="sub">Switch to Coordinator and create an event first, then come back here.</div></div>';
+    }
+    var html = '<div class="panel">';
+    html += '<h2>Accreditation</h2><div class="sub">' + state.event.name + '</div>';
+    html += '<div class="scan-box">Camera view (simulated), point at a guest\'s QR code</div>';
+    html += '<button class="btn" onclick="scanNext()">Simulate scan</button>';
+    html += '<div class="section-title" style="margin-top:24px;">Guest list</div>';
+    if (state.guests.length === 0) {
+      html += '<div class="empty">No guests registered yet.</div>';
+    } else {
+      state.guests.forEach(function (g) {
+        html += '<div class="guest-row"><span>' + g.name + '</span><span class="tag ' + (g.checkedIn ? 'ok' : '') + '">' + (g.checkedIn ? 'checked in' : 'not yet') + '</span></div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function scanNext() {
+    var next = state.guests.find(function (g) { return !g.checkedIn; });
+    if (next) {
+      next.checkedIn = true;
+      saveState();
+    }
+    render();
+  }
+
+  // ---- Guest ----
+  function renderGuest() {
+    if (!state.event) {
+      return '<div class="panel"><h2>No event yet</h2><div class="sub">Switch to Coordinator and create an event first, then come back here as a guest.</div></div>';
+    }
+    var me = state.guests.find(function (g) { return g.name === currentUser.name; });
+
+    if (!me) {
+      return '<div class="panel">' +
+        '<h2>Register for ' + state.event.name + '</h2>' +
+        '<div class="sub">Step 1 of 1, kept short for this demo.</div>' +
+        '<label>Upload passport photo</label>' +
+        '<div class="upload" id="upload-box" onclick="fakeUpload()">Tap to attach a file</div>' +
+        '<label>Preferred language</label>' +
+        '<select><option>English</option><option>French</option><option>Portuguese</option></select>' +
+        '<button class="btn" onclick="submitIntake()">Submit</button>' +
+        '</div>';
+    }
+
+    var html = '<div class="panel"><h2>Thanks, ' + currentUser.name.split(' ')[0] + '</h2><div class="sub">You\'re registered for ' + state.event.name + '. ' + (me.checkedIn ? 'You\'re checked in.' : 'You\'ll be checked in on arrival.') + '</div></div>';
+
+    html += '<div class="panel">';
+    html += '<div class="section-title">Messages</div>';
+    html += '<div class="wa-frame">';
+    html += '<div class="wa-bar"><span>Horizon Events</span><span style="font-size:10px;opacity:0.7;">simulated</span></div>';
+    html += '<div class="wa-thread" id="wa-thread">';
+    (me.messages || []).forEach(function (m) {
+      html += '<div class="wa-msg ' + (m.from === 'guest' ? 'wa-out' : 'wa-in') + '">' + m.text +
+        (m.from === 'guest' ? '<div class="wa-meta"><span class="check">&#10003;&#10003;</span></div>' : '') + '</div>';
+    });
+    html += '</div>';
+    html += '<div class="wa-compose"><input type="text" id="wa-input" placeholder="Type a message"><button onclick="guestSend()">&#10148;</button></div>';
+    html += '</div></div>';
+    return html;
+  }
+
+  function fakeUpload() {
+    var box = document.getElementById('upload-box');
+    box.textContent = 'passport-scan.jpg attached';
+    box.classList.add('filled');
+  }
+
+  function submitIntake() {
+    var guest = {
+      name: currentUser.name,
+      checkedIn: false,
+      messages: [
+        { from: 'system', text: 'Hi ' + currentUser.name.split(' ')[0] + '! Thanks for registering for ' + state.event.name + '. We\'ll send logistics details closer to the date.' }
+      ]
+    };
+    state.guests.push(guest);
+    saveState();
+    render();
+  }
+
+  function guestSend() {
+    var input = document.getElementById('wa-input');
+    var text = input.value.trim();
+    if (!text) return;
+    var me = state.guests.find(function (g) { return g.name === currentUser.name; });
+    me.messages.push({ from: 'guest', text: text });
+
+    // Simulated cost per message
+    var cost = 0.35;
+    state.float.balance = Math.max(0, state.float.balance - cost);
+
+    // Auto-flag exception for coordinator
+    state.exceptions.push({
+      id: 'ex-' + Date.now(),
+      label: currentUser.name + ' \u00b7 sent a message: "' + text + '"',
+      resolved: false
+    });
+
+    saveState();
+    input.value = '';
+    render();
+
+    setTimeout(function () {
+      me.messages.push({ from: 'system', text: 'Thanks, we\'ve flagged this for the team, someone will follow up shortly.' });
+      saveState();
+      render();
+    }, 900);
+  }
+</script>
+
+</body>
+</html>
