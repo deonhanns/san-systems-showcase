@@ -165,6 +165,40 @@
     text-decoration:none;margin-bottom:18px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;
   }
   .back-link:hover{color:var(--navy);}
+
+  /* Rigor / rollout / about sections on the landing page */
+  .meat-section{padding:0 0 44px;}
+  .meat-section .label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+  .meat-section h2{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .meat-section .lead{font-size:13.5px;color:var(--muted);margin-bottom:20px;max-width:56ch;}
+
+  .flow{background:#fff;border-radius:12px;padding:24px;box-shadow:0 4px 16px rgba(27,42,65,0.05);}
+  .flow-step{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);}
+  .flow-step:first-child{border-top:none;padding-top:0;}
+  .flow-step .num{
+    width:24px;height:24px;border-radius:50%;background:var(--bg);color:var(--navy);
+    display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;flex-shrink:0;
+  }
+  .flow-step .t{font-size:13.5px;font-weight:600;margin-bottom:2px;}
+  .flow-step .d{font-size:12.5px;color:var(--muted);}
+  .flow-branch{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .flow-branch span{
+    font-size:11px;background:var(--amber-bg);color:var(--amber-ink);border-radius:12px;
+    padding:3px 10px;font-family:'DM Mono',monospace;
+  }
+
+  .rollout3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .rollout3-item{background:#fff;border-radius:10px;padding:18px;border-top:3px solid var(--teal);}
+  .rollout3-item .n{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal-dark);margin-bottom:8px;}
+  .rollout3-item .t{font-size:14px;font-weight:600;margin-bottom:6px;}
+  .rollout3-item .d{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+  .about-note{background:var(--navy);color:rgba(255,255,255,0.85);border-radius:12px;padding:24px 26px;font-size:13.5px;line-height:1.6;}
+  .about-note strong{color:#fff;}
+
+  @media(max-width:600px){
+    .rollout3{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -183,13 +217,17 @@
     </div>
   </div>
 
+  <div class="meat-section" style="padding-bottom:0;">
+    <div class="label">The pattern we keep seeing</div>
+    <p class="lead">These are the same four problems that show up in almost every manual event registration process, not a hypothetical, this is what we go looking for first.</p>
+  </div>
   <div class="compare">
     <div class="compare-col bad">
-      <h3>Today, one spreadsheet</h3>
-      <div class="compare-row">Duplicate delegate entries, nobody notices until check-in</div>
+      <h3>One spreadsheet, doing six jobs</h3>
+      <div class="compare-row">A guest submits twice with different details, nobody notices until check-in</div>
       <div class="compare-row">Shuttle seats tracked by memory, not a system</div>
-      <div class="compare-row">Every guest question means someone reading a WhatsApp thread by hand</div>
-      <div class="compare-row">No idea who's actually confirmed until the day itself</div>
+      <div class="compare-row">Every guest question means someone reading a message thread by hand</div>
+      <div class="compare-row">No one's actually sure who's confirmed until the day itself</div>
     </div>
     <div class="compare-col good">
       <h3>With EventOS</h3>
@@ -200,14 +238,70 @@
     </div>
   </div>
 
+  <div class="meat-section">
+    <div class="label">How we build</div>
+    <h2>The detail most demos skip</h2>
+    <p class="lead">A duplicate guest record sounds simple until you actually have to resolve one. Here's the real decision flow, not just "tap to fix":</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="num">1</div>
+        <div><div class="t">Guest submits, system detects a possible match</div><div class="d">Flagged the moment it happens, not in an overnight batch</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="num">2</div>
+        <div><div class="t">Coordinator sees both records side by side</div><div class="d">Every field compared, differences highlighted, nothing hidden</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="num">3</div>
+        <div>
+          <div class="t">Three real choices, not one</div>
+          <div class="d">Because "just merge them" isn't always right</div>
+          <div class="flow-branch"><span>Keep record A</span><span>Keep record B</span><span>Merge field by field</span></div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">4</div>
+        <div><div class="t">Resolved and logged</div><div class="d">Who decided, what changed, timestamped, archived rather than deleted</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meat-section">
+    <div class="label">How you'd actually try this</div>
+    <h2>Not an all-or-nothing bet</h2>
+    <p class="lead">You don't hand over your event and hope. Rollout happens in three stages, each with a clear purpose.</p>
+    <div class="rollout3">
+      <div class="rollout3-item">
+        <div class="n">01</div>
+        <div class="t">Build</div>
+        <div class="d">The system gets built against your actual process, before you ever run a real event through it.</div>
+      </div>
+      <div class="rollout3-item">
+        <div class="n">02</div>
+        <div class="t">Shadow run</div>
+        <div class="d">Runs alongside your current process at one real event. If anything doesn't work as expected, your usual process is still there as backup.</div>
+      </div>
+      <div class="rollout3-item">
+        <div class="n">03</div>
+        <div class="t">Solo</div>
+        <div class="d">Old process retired. The system runs on its own, with us on call for the first fully independent event.</div>
+      </div>
+    </div>
+  </div>
   <div class="why">
     <div class="why-item"><div class="n">&#128274;</div><div class="t">Role-scoped by design</div><div class="d">Coordinators, crew, and guests each see only their own view, nothing to accidentally expose</div></div>
     <div class="why-item"><div class="n">&#128241;</div><div class="t">No new hardware</div><div class="d">Runs on the laptop, tablet, and phone your team already has</div></div>
     <div class="why-item"><div class="n">&#128172;</div><div class="t">Built for how guests actually reply</div><div class="d">SMS and WhatsApp are first-class, not an afterthought</div></div>
   </div>
+
+  <div class="meat-section">
+    <div class="about-note">
+      <strong>Who's behind this:</strong> San Systems is a small, AI-augmented team based in Cape Town. That's deliberate, it means direct access to the people actually building your system, not an account manager relaying messages, and pricing without agency overhead stacked on top. <a href="mailto:hello@thesanscribe.com?subject=Interested%20in%20EventOS" style="color:#fff;">Talk to us directly</a> whenever you're ready.
+    </div>
+  </div>
 </div>
 
-<!-- LOGIN / ROLE PICKER -->
+
 <div id="login">
   <div class="card">
     <button class="back-link" onclick="showIntro()">&#8592; Back</button>
