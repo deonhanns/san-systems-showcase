@@ -159,6 +159,12 @@
     .compare{grid-template-columns:1fr;}
     .why{grid-template-columns:1fr;}
   }
+
+  .back-link{
+    display:inline-flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted);
+    text-decoration:none;margin-bottom:18px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;
+  }
+  .back-link:hover{color:var(--navy);}
 </style>
 </head>
 <body>
@@ -204,6 +210,7 @@
 <!-- LOGIN / ROLE PICKER -->
 <div id="login">
   <div class="card">
+    <button class="back-link" onclick="showIntro()">&#8592; Back</button>
     <div class="wordmark">Event<span>OS</span></div>
     <div class="tagline">Sample data for Horizon Events. Pick a name and a role to explore.</div>
 
@@ -303,6 +310,11 @@
   function showLogin() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('login').style.display = 'block';
+  }
+
+  function showIntro() {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('intro').style.display = 'block';
   }
 
   function switchRole() {
