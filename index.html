@@ -190,7 +190,14 @@
     return JSON.parse(JSON.stringify(DEFAULT_STATE));
   }
   function saveState() {
-    sessionStorage.setItem('eventos-state', JSON.stringify(state));
+    // Storage failures (private browsing, restricted preview contexts, quota)
+    // must never block the UI from re-rendering. This was asymmetric with
+    // loadState() before, and is the likely cause of "the button does nothing".
+    try {
+      sessionStorage.setItem('eventos-state', JSON.stringify(state));
+    } catch (e) {
+      console.warn('EventOS: could not persist state, continuing in-memory only', e);
+    }
   }
 
   // ---- Login ----
