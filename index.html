@@ -260,7 +260,7 @@
         '</div>' +
         '<label>Venue</label><input type="text" id="ev-venue" placeholder="e.g. Cape Town ICC">' +
         '<label>Expected headcount</label><input type="text" id="ev-headcount" placeholder="e.g. 150">' +
-        '<button class="btn" onclick="createEvent()">Create event</button>' +
+        '<button class="btn" onclick="submitNewEvent()">Create event</button>' +
         '</div>';
     }
 
@@ -296,7 +296,7 @@
     return html;
   }
 
-  function createEvent() {
+  function submitNewEvent() {
     var name = document.getElementById('ev-name').value.trim() || 'Horizon Summit Cape Town';
     var start = document.getElementById('ev-start').value.trim() || '14 Nov 2026';
     var end = document.getElementById('ev-end').value.trim() || '16 Nov 2026';
