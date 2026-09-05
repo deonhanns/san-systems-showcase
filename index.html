@@ -664,7 +664,7 @@
       }
       return '<div class="panel">' +
         '<h2>Confirm your details</h2>' +
-        '<div class="sub">We pulled this from your passport. Please check it\'s correct before continuing, we never register anyone on a guess.</div>' +
+        '<div class="sub">We pulled this straight from your passport, surname first, in capitals, exactly as printed. Check the order and spelling before continuing, we never register anyone on a guess.</div>' +
         '<label>Full name</label><input type="text" id="rv-name" value="' + guestExtraction.name + '">' +
         '<label>Passport number</label><input type="text" id="rv-passport" value="' + guestExtraction.passportNumber + '">' +
         '<div class="row2">' +
@@ -697,9 +697,17 @@
     guestExtraction = { status: 'processing' };
     render();
     setTimeout(function () {
+      // Real passports print surname first, in capitals (the MRZ convention).
+      // Showing that as-read, rather than silently correcting it, is what
+      // makes the confirmation step demonstrate real value instead of
+      // just being an extra click.
+      var parts = currentUser.name.trim().split(' ');
+      var asPrinted = parts.length > 1
+        ? (parts[parts.length - 1] + ' ' + parts.slice(0, -1).join(' ')).toUpperCase()
+        : currentUser.name.toUpperCase();
       guestExtraction = {
         status: 'ready',
-        name: currentUser.name,
+        name: asPrinted,
         passportNumber: 'A1234567',
         nationality: 'South African',
         dob: '14 May 1990'
